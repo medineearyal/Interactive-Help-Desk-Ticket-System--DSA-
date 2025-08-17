@@ -130,33 +130,23 @@ class TicketService(DashboardMixin):
                 return t
         return None
 
-    def can_close(self, ticket_id, visited=None):
-        """
-        Recursively check if a ticket can be closed.
-        A ticket can be closed if:
-          - It exists
-          - All its dependencies are closed or can themselves be closed
-        """
-        if visited is None:
-            visited = set()
-
-        if ticket_id in visited:
+    def can_close(self, ticket_id):
+        """Return True if a ticket can be closed (all parents up the chain are closed)."""
+        ticket = self.get_ticket_by_id(ticket_id)
+        if ticket is None:
             return False
-        visited.add(ticket_id)
-
-        ticket = next((t for t in self.tickets if t.id == ticket_id), None)
-        if not ticket:
-            return False
-
-        if ticket.status == "Closed":
+        
+        if ticket.parent_id is None:
             return True
 
-        for dep_id in ticket.dependencies:
-            dep_ticket = next((t for t in self.tickets if t.id == dep_id), None)
-            if not dep_ticket or dep_ticket.status != "Closed":
-                if not self.can_close(dep_id, visited):
-                    return False
-        return True
+        parent = self.get_ticket_by_id(ticket.parent_id)
+        if parent is None:
+            return False
+
+        if parent.status != "closed":
+            return False
+
+        return self.can_close(parent.id)
 
     def enqueue_for_processing(self, ticket):
         """Place ticket into appropriate work structure."""

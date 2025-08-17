@@ -21,7 +21,7 @@ class Serializable:
 
 
 class Ticket(Serializable):
-    def __init__(self, id, title, priority, reporter, assignee=None, status=TicketStatusEnum.OPEN.label, parent_id=None,
+    def __init__(self, id, title, priority, reporter, parent_id=None, assignee=None, status=TicketStatusEnum.OPEN.label,
                  created_at=datetime.now(), closed_at=None):
         self.id = id
         self.title = title
@@ -51,7 +51,7 @@ class Ticket(Serializable):
             f"Ticket(id = {self.id}, Title = '{self.title}', "
             f"Priority = {self.priority}, Status = {self.status}, Parent = {self.parent_id}, "
             f"Created At = {self.created_at.strftime('%d %b %Y, %I:%M %p')}), Reporter = {self.reporter}, "
-            f"Assignee = {self.assignee}"
+            f"Assignee = {self.assignee}, "
             f"Closed At = {self.closed_at.strftime('%d %b %Y, %I:%M %p') if self.closed_at else None}, "
             f"Duration To Close = {format_duration(self.ticket_solve_duration)})"
         )
