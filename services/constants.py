@@ -21,7 +21,8 @@ class TicketPriorityEnum(Enum):
 
 class TicketStatusEnum(Enum):
     OPEN = "Open", 1
-    CLOSED = "Closed", 0
+    ASSIGNED = "Assigned", 2
+    CLOSED = "Closed", 3
 
     def __init__(self, label, status):
         self.label = label
@@ -35,3 +36,9 @@ class TicketStatusEnum(Enum):
     def labels(cls):
         return [member.label for member in cls]
 
+
+class TicketActionEnum(Enum):
+    CREATE = "Create", 0
+    OPEN = "Open", 1
+    ASSIGN = "Assign", 2
+    CLOSE = "Close", 3

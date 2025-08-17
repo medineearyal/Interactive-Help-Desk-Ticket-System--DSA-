@@ -2,7 +2,6 @@ from datetime import datetime
 import json
 
 from services.constants import TicketStatusEnum
-from services.history import History
 from utils.menu import format_duration
 
 
@@ -22,7 +21,7 @@ class Serializable:
 
 class Ticket(Serializable):
     def __init__(self, id, title, priority, reporter, parent_id=None, assignee=None, status=TicketStatusEnum.OPEN.label,
-                 created_at=datetime.now(), closed_at=None):
+                 created_at=datetime.now(), assigned_at=None, closed_at=None):
         self.id = id
         self.title = title
         self.priority = priority
@@ -31,14 +30,26 @@ class Ticket(Serializable):
         self.status = status
         self.parent_id = parent_id
         self.created_at = datetime.fromisoformat(created_at) if isinstance(created_at, str) else created_at
-        self.closed_at = datetime.fromisoformat(created_at) if isinstance(created_at, str) else created_at
+        self.assigned_at = datetime.fromisoformat(assigned_at) if isinstance(assigned_at, str) else assigned_at
+        self.closed_at = datetime.fromisoformat(closed_at) if isinstance(closed_at, str) else closed_at
 
     def assign(self, assignee):
         self.assignee = assignee
+        self.status = TicketStatusEnum.ASSIGNED.label
+        self.assigned_at = datetime.now()
 
-    def close(self):
-        self.closed_at = datetime.now()
+    def close(self, closed_by=None):
+        if not self.assignee and closed_by:
+            self.assignee = closed_by
+            self.assigned_at = self.created_at
+        else:
+            return False
         self.status = TicketStatusEnum.CLOSED.label
+        self.closed_at = datetime.now()
+        return True
+
+    def open(self):
+        self.status = TicketStatusEnum.OPEN.label
 
     @property
     def ticket_solve_duration(self):
